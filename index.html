@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroFluidez Pro - Brain Assessment</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --accent: #22d3ee;
+            --success: #10b981;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .app-container {
+            background: var(--card);
+            width: 100%;
+            max-width: 800px;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Icono de Cerebro */
+        .brain-icon {
+            width: 80px;
+            height: 80px;
+            fill: var(--accent);
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 10px var(--primary));
+        }
+
+        h1 { font-weight: 800; font-size: 2.2rem; margin-bottom: 5px; background: linear-gradient(to right, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .setup-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        select, button {
+            padding: 15px;
+            border-radius: 12px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        select { background: #0f172a; color: white; border: 2px solid #334155; }
+
+        .btn { cursor: pointer; transition: all 0.2s; border: none; }
+        .btn-mic { background: #334155; color: white; margin-bottom: 10px; width: 100%; }
+        .btn-mic.ready { background: var(--success); }
+        .btn-start { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; width: 100%; opacity: 0.5; cursor: not-allowed; }
+        .btn-start.active { opacity: 1; cursor: pointer; }
+
+        #timer { font-size: 6rem; font-weight: 800; margin: 15px 0; color: var(--accent); }
+
+        .word-list {
+            margin-top: 20px;
+            min-height: 120px;
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            border-radius: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            border: 1px dashed rgba(255,255,255,0.1);
+        }
+
+        .word-tag { background: rgba(79, 70, 229, 0.2); border: 1px solid var(--primary); padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; animation: pop 0.3s ease; }
+        @keyframes pop { from {transform: scale(0.5); opacity: 0;} to {transform: scale(1); opacity: 1;} }
+
+        .results-area { display: none; margin-top: 30px; padding: 25px; background: rgba(255,255,255,0.05); border-radius: 15px; }
+
+        .share-section {
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            border-top: 1px solid #334155;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <svg class="brain-icon" viewBox="0 0 24 24">
+        <path d="M12,3C7.58,3 4,4.79 4,7C4,9.21 7.58,11 12,11C16.42,11 20,9.21 20,7C20,4.79 16.42,3 12,3M4,9V12C4,14.21 7.58,16 12,16C16.42,16 20,14.21 20,12V9C18.16,10.22 15.2,11 12,11C8.8,11 5.84,10.22 4,9M4,14V17C4,19.21 7.58,21 12,21C16.42,21 20,19.21 20,17V14C18.16,15.22 15.2,16 12,16C8.8,16 5.84,15.22 4,14Z" />
+    </svg>
+
+    <h1>NeuroFluidez Pro</h1>
+    <p style="color: #94a3b8; margin-bottom: 20px;">Evaluación de Procesos Ejecutivos</p>
+    
+    <div class="setup-section">
+        <select id="test-type">
+            <optgroup label="Fonológica (Letras)">
+                <option value="Letra F">Letra: F</option>
+                <option value="Letra A">Letra: A</option>
+                <option value="Letra S">Letra: S</option>
+            </optgroup>
+            <optgroup label="Semántica (Categorías)">
+                <option value="Animales">Categoría: Animales</option>
+                <option value="Frutas">Categoría: Frutas</option>
+                <option value="Profesiones">Categoría: Profesiones</option>
+            </optgroup>
+        </select>
+        <div style="display:flex; flex-direction:column;">
+            <button id="mic-btn" class="btn btn-mic" onclick="activateMic()">1. Activar Micrófono</button>
+            <button id="start-btn" class="btn btn-start" onclick="startTest()" disabled>2. Empezar Prueba</button>
+        </div>
+    </div>
+
+    <div id="timer">60</div>
+
+    <div class="word-list" id="word-list">
+        <span style="color: #475569;">Las palabras se registrarán por voz...</span>
+    </div>
+
+    <div class="results-area" id="results">
+        <h2>Evaluación Completa</h2>
+        <p>Total palabras únicas: <span id="total-count" style="font-size: 2rem; color: var(--accent); font-weight: 800;">0</span></p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
+            <button class="btn btn-mic" onclick="downloadExcel()" style="background: var(--success);">Descargar Excel</button>
+            <button class="btn btn-mic" onclick="sendEmail()" style="background: var(--primary);">Enviar por Correo</button>
+        </div>
+        <button class="btn btn-mic" onclick="location.reload()" style="margin-top: 10px;">Nueva Evaluación</button>
+    </div>
+
+    <div class="share-section">
+        <p>¿Quieres evaluar a alguien más? Comparte el link de tu página alojada.</p>
+        <button class="btn btn-mic" onclick="sharePage()" style="margin-top:10px; width:auto; padding:8px 20px; font-size:0.8rem;">Copiar Link de Acceso</button>
+    </div>
+</div>
+
+<script>
+    let recognition;
+    let timer;
+    let timeLeft = 60;
+    let words = new Set();
+    const targetEmail = "stiven.brayan1@gmail.com";
+
+    // Inicializar Reconocimiento
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'es-EC';
+        recognition.continuous = true;
+        recognition.interimResults = false;
+
+        recognition.onresult = (event) => {
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    const text = event.results[i][0].transcript.toLowerCase().trim();
+                    const wordsFound = text.split(/\s+/);
+                    wordsFound.forEach(w => {
+                        if (w.length > 1 && !words.has(w)) {
+                            words.add(w);
+                            renderWords();
+                        }
+                    });
+                }
+            }
+        };
+    }
+
+    function activateMic() {
+        // Pedir permiso explícito
+        navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(() => {
+            document.getElementById('mic-btn').textContent = "✓ Micrófono Autorizado";
+            document.getElementById('mic-btn').classList.add('ready');
+            document.getElementById('start-btn').disabled = false;
+            document.getElementById('start-btn').classList.add('active');
+        })
+        .catch(err => {
+            alert("Error: Debes permitir el micrófono en Chrome para que funcione.");
+            console.error(err);
+        });
+    }
+
+    function startTest() {
+        words.clear();
+        renderWords();
+        timeLeft = 60;
+        document.getElementById('start-btn').disabled = true;
+        document.getElementById('timer').style.color = "var(--success)";
+        
+        recognition.start();
+        
+        timer = setInterval(() => {
+            timeLeft--;
+            document.getElementById('timer').textContent = timeLeft;
+            if (timeLeft <= 10) document.getElementById('timer').style.color = "#f43f5e";
+            if (timeLeft <= 0) endTest();
+        }, 1000);
+    }
+
+    function renderWords() {
+        const container = document.getElementById('word-list');
+        container.innerHTML = Array.from(words).map(w => `<span class="word-tag">${w}</span>`).join('');
+    }
+
+    function endTest() {
+        clearInterval(timer);
+        recognition.stop();
+        document.getElementById('results').style.display = 'block';
+        document.getElementById('total-count').textContent = words.size;
+    }
+
+    function downloadExcel() {
+        const type = document.getElementById('test-type').value;
+        let csvContent = "data:text/csv;charset=utf-8,Fecha,Prueba,Total,Palabras\n";
+        csvContent += `"${new Date().toLocaleString()}","${type}","${words.size}","${Array.from(words).join(' - ')}"`;
+        const link = document.createElement("a");
+        link.setAttribute("href", encodeURI(csvContent));
+        link.setAttribute("download", "resultado_neuro.csv");
+        document.body.appendChild(link);
+        link.click();
+    }
+
+    function sendEmail() {
+        const type = document.getElementById('test-type').value;
+        const body = `Resultados de Fluidez Verbal:\n\nPrueba: ${type}\nTotal de palabras: ${words.size}\nLista: ${Array.from(words).join(', ')}`;
+        const mailtoLink = `mailto:${targetEmail}?subject=Resultados Fluidez Verbal - ${type}&body=${encodeURIComponent(body)}`;
+        window.location.href = mailtoLink;
+    }
+
+    function sharePage() {
+        const url = window.location.href;
+        navigator.clipboard.writeText(url);
+        alert("¡Link copiado! Pásalo por WhatsApp o correo para que otros lo usen.");
+    }
+</script>
+
+</body>
+</html>
