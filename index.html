@@ -3,54 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NeuroFluidez Pro - Assessment</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+    <title>NeuroFluidez Pro - Brain Assessment</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #6366f1; --secondary: #a855f7; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #22d3ee; --success: #10b981; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .app-container { background: var(--card); width: 100%; max-width: 600px; border-radius: 24px; padding: 30px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); text-align: center; border: 1px solid rgba(255,255,255,0.1); }
-        .brain-icon { width: 60px; height: 60px; fill: var(--accent); margin-bottom: 10px; }
-        h1 { font-size: 1.8rem; margin: 0; background: linear-gradient(to right, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .setup-section { margin: 20px 0; display: flex; flex-direction: column; gap: 10px; }
-        select, button { padding: 12px; border-radius: 12px; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; }
-        select { background: #0f172a; color: white; border: 1px solid #334155; }
-        .btn-mic { background: #334155; color: white; }
-        .btn-mic.ready { background: var(--success); }
-        .btn-start { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; opacity: 0.5; }
-        .btn-start.active { opacity: 1; }
-        #timer { font-size: 5rem; font-weight: 800; margin: 10px 0; color: var(--accent); }
-        .word-list { margin-top: 15px; min-height: 80px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-        .word-tag { background: rgba(79, 70, 229, 0.2); border: 1px solid var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; }
-        .results-area { display: none; margin-top: 20px; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 15px; }
+        :root {
+            --primary: #6366f1; /* Índigo */
+            --secondary: #a855f7; /* Magenta Neón */
+            --bg: #0f172a; /* Fondo Oscuro Profundo */
+            --card: #1e293b; /* Tarjeta */
+            --text: #f8fafc; /* Texto Claro */
+            --accent: #22d3ee; /* Cian Brillante */
+            --success: #10b981; /* Verde Esmeralda */
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            background: var(--card);
+            width: 100%;
+            max-width: 800px;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
+            position: relative;
+        }
+
+        /* Efecto de fondo neón sutil */
+        .app-container::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .content { position: relative; z-index: 1; }
+
+        /* Icono de Cerebro SVG Animado */
+        .brain-icon {
+            width: 100px;
+            height: 100px;
+            fill: var(--accent);
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 15px var(--primary));
+            animation: pulse-brain 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse-brain {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; filter: drop-shadow(0 0 25px var(--secondary)); }
+        }
+
+        h1 { font-weight: 800; font-size: 2.5rem; margin-bottom: 5px; background: linear-gradient(to right, #818cf8, #fb7185); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .neuro-label { font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 25px; }
+
+        .setup-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        select, button {
+            padding: 18px;
+            border-radius: 16px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        select { background: #0f172a; color: white; border: 2px solid #334155; }
+        select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 15px rgba(99, 102, 241, 0.5); }
+
+        .btn { cursor: pointer; border: none; }
+        .btn-mic { background: #334155; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        .btn-mic:hover { background: #475569; transform: translateY(-2px); }
+        .btn-mic.ready { background: var(--success); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
+
+        .btn-start { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; opacity: 0.5; cursor: not-allowed; box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4); }
+        .btn-start.active { opacity: 1; cursor: pointer; }
+        .btn-start.active:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(99, 102, 241, 0.6); }
+
+        #timer { font-size: 7rem; font-weight: 800; margin: 20px 0; color: var(--accent); text-shadow: 0 0 20px rgba(34, 211, 238, 0.5); }
+
+        .word-list {
+            margin-top: 25px;
+            min-height: 120px;
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            border-radius: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            border: 1px dashed rgba(255,255,255,0.1);
+            position: relative;
+        }
+
+        .word-list-label {
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: var(--card);
+            padding: 0 10px;
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .word-tag {
+            background: rgba(79, 70, 229, 0.2);
+            border: 1px solid var(--primary);
+            color: var(--text);
+            padding: 6px 18px;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            animation: word-pop 0.4s ease-out;
+        }
+
+        @keyframes word-pop {
+            0% { transform: scale(0.5) translateY(10px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .results-area { display: none; margin-top: 40px; padding: 30px; background: rgba(255,255,255,0.03); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); animation: fade-in 0.5s ease; }
+        @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .results-stat { font-size: 2.5rem; font-weight: 800; color: var(--accent); margin-bottom: 10px; }
+        .results-label { font-size: 1rem; color: #94a3b8; margin-bottom: 25px; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <svg class="brain-icon" viewBox="0 0 24 24"><path d="M12,3C7.58,3 4,4.79 4,7C4,9.21 7.58,11 12,11C16.42,11 20,9.21 20,7C20,4.79 16.42,3 12,3M4,9V12C4,14.21 7.58,16 12,16C16.42,16 20,14.21 20,12V9C18.16,10.22 15.2,11 12,11C8.8,11 5.84,10.22 4,9M4,14V17C4,19.21 7.58,21 12,21C16.42,21 20,19.21 20,17V14C18.16,15.22 15.2,16 12,16C8.8,16 5.84,15.22 4,14Z" /></svg>
-    <h1>NeuroFluidez Pro</h1>
-    
-    <div class="setup-section">
-        <select id="test-type">
-            <option value="Letra F">Fluidez: Letra F</option>
-            <option value="Letra A">Fluidez: Letra A</option>
-            <option value="Letra S">Fluidez: Letra S</option>
-            <option value="Animales">Categoría: Animales</option>
-            <option value="Frutas">Categoría: Frutas</option>
-            <option value="Profesiones">Categoría: Profesiones</option>
-        </select>
-        <button id="mic-btn" class="btn-mic" onclick="activateMic()">1. Activar Micrófono</button>
-        <button id="start-btn" class="btn-start" onclick="startTest()" disabled>2. Iniciar Evaluación</button>
-    </div>
+    <div class="content">
+        <svg class="brain-icon" viewBox="0 0 24 24">
+            <path d="M12 3c-4.42 0-8 1.79-8 4 0 .93.63 1.78 1.71 2.44-.04.18-.08.37-.1.56-.03.21-.05.42-.05.64 0 2.21 3.58 4 8 4s8-1.79 8-4c0-.22-.02-.43-.05-.64-.02-.19-.06-.38-.1-.56 1.08-.66 1.71-1.51 1.71-2.44 0-2.21-3.58-4-8-4zm-4 4c0-.55.45-1 1-1s1 .45 1 1-.45 1-1 1-1-.45-1-1zm6 5c-2.21 0-4-.89-4-2s1.79-2 4-2 4 .89 4 2-1.79 2-4 2zm1.5-3.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5zm1 1.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5zM12 16c-4.42 0-8 1.79-8 4 0 2.21 3.58 4 8 4s8-1.79 8-4c0-2.21-3.58-4-8-4z"/>
+        </svg>
 
-    <div id="timer">60</div>
-    <div class="word-list" id="word-list"></div>
+        <h1>NeuroFluidez Pro</h1>
+        <div class="neuro-label">Evaluación de Funciones Ejecutivas</div>
+        
+        <div class="setup-section">
+            <select id="test-type">
+                <optgroup label="Fonológica (Letras)">
+                    <option value="Letra F">Fluidez: Letra F</option>
+                    <option value="Letra A">Fluidez: Letra A</option>
+                    <option value="Letra S">Fluidez: Letra S</option>
+                </optgroup>
+                <optgroup label="Semántica (Categorías)">
+                    <option value="Animales">Categoría: Animales</option>
+                    <option value="Frutas">Categoría: Frutas</option>
+                    <option value="Profesiones">Categoría: Profesiones</option>
+                </optgroup>
+            </select>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <button id="mic-btn" class="btn-mic" onclick="activateMic()">1. Activar Micrófono</button>
+                <button id="start-btn" class="btn-start" onclick="startTest()" disabled>2. Iniciar Evaluación</button>
+            </div>
+        </div>
 
-    <div class="results-area" id="results">
-        <h3>Resultados Finales</h3>
-        <p>Palabras únicas: <span id="total-count" style="color:var(--accent); font-size:1.5rem;">0</span></p>
-        <button onclick="sendEmail()" style="background:var(--primary); color:white; width:100%; margin-bottom:10px;">Enviar a mi Correo</button>
-        <button onclick="location.reload()" style="background:#475569; color:white; width:100%;">Reiniciar</button>
+        <div id="timer">60</div>
+        <div id="neuro-info" style="font-size:0.85rem; color:#475569; margin-top:-10px; margin-bottom:15px; min-height:1.2em;"></div>
+
+        <div class="word-list">
+            <div class="word-list-label">Palabras Detectadas (Lexicón Neural)</div>
+            <div id="word-list-content" style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center;">
+                <span style="color: #475569; font-style: italic;">Esperando activación...</span>
+            </div>
+        </div>
+
+        <div class="results-area" id="results">
+            <h3>Evaluación Completada</h3>
+            <div class="results-stat" id="total-count">0</div>
+            <div class="results-label">Palabras únicas procesadas</div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:20px;">
+                <button onclick="downloadExcel()" style="background:var(--success); color:white; width:100%;">Descargar Excel</button>
+                <button onclick="sendEmail()" style="background:var(--primary); color:white; width:100%;">Enviar a mi Correo</button>
+            </div>
+            <button onclick="location.reload()" style="background:#475569; color:white; width:100%; margin-top:15px;">Nueva Evaluación</button>
+        </div>
     </div>
 </div>
 
@@ -61,16 +213,20 @@
     let words = new Set();
     const myEmail = "stiven.brayan1@gmail.com";
 
+    // Inicialización del Reconocimiento de Voz
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
         recognition = new SpeechRecognition();
-        recognition.lang = 'es-EC';
+        recognition.lang = 'es-EC'; // Configurado para español ecuatoriano
         recognition.continuous = true;
+        recognition.interimResults = false;
+
         recognition.onresult = (event) => {
             for (let i = event.resultIndex; i < event.results.length; ++i) {
                 if (event.results[i].isFinal) {
                     const text = event.results[i][0].transcript.toLowerCase().trim();
-                    text.split(/\s+/).forEach(w => {
+                    const wordsFound = text.split(/\s+/);
+                    wordsFound.forEach(w => {
                         if (w.length > 1 && !words.has(w)) {
                             words.add(w);
                             renderWords();
@@ -79,43 +235,78 @@
                 }
             }
         };
-    }
+
+        recognition.onerror = (event) => { console.error("Error de voz:", event.error); };
+    } else { alert("Navegador no compatible con Speech Recognition. Usa Chrome o Edge."); }
 
     async function activateMic() {
         try {
             await navigator.mediaDevices.getUserMedia({ audio: true });
-            document.getElementById('mic-btn').textContent = "✓ Micro Listo";
+            document.getElementById('mic-btn').textContent = "✓ Micrófono Listo";
             document.getElementById('mic-btn').classList.add('ready');
             document.getElementById('start-btn').disabled = false;
             document.getElementById('start-btn').classList.add('active');
-        } catch (e) { alert("Debes permitir el micro en el navegador."); }
+            updateNeuroInfo("Canal de audio verificado. Sistema listo.");
+        } catch (e) { alert("Debes permitir el acceso al micrófono para realizar la evaluación."); }
     }
 
     function startTest() {
         words.clear(); renderWords();
+        timeLeft = 60;
         document.getElementById('start-btn').disabled = true;
+        document.getElementById('test-type').disabled = true;
+        document.getElementById('timer').style.color = "var(--success)";
+        
         recognition.start();
+        updateNeuroInfo("Evaluando... Procesamiento de Lenguaje (Área de Broca) activo.");
+        
         timer = setInterval(() => {
             timeLeft--;
             document.getElementById('timer').textContent = timeLeft;
-            if (timeLeft <= 0) {
-                clearInterval(timer);
-                recognition.stop();
-                document.getElementById('results').style.display = 'block';
-                document.getElementById('total-count').textContent = words.size;
-            }
+            if (timeLeft <= 10) document.getElementById('timer').style.color = "#f43f5e"; // Rojo al final
+            
+            // Simular actividad neural
+            if (timeLeft === 45) updateNeuroInfo("Acceso Léxico Profundo en curso.");
+            if (timeLeft === 30) updateNeuroInfo("Activación de Memoria Semántica y Frontal.");
+            if (timeLeft === 15) updateNeuroInfo("Esfuerzo de Recuperación de Información.");
+
+            if (timeLeft <= 0) endTest();
         }, 1000);
     }
 
     function renderWords() {
-        document.getElementById('word-list').innerHTML = Array.from(words).map(w => `<span class="word-tag">${w}</span>`).join('');
+        const content = document.getElementById('word-list-content');
+        if (words.size === 0) { content.innerHTML = '<span style="color: #475569; font-style: italic;">Escuchando...</span>'; return; }
+        content.innerHTML = Array.from(words).map(w => `<span class="word-tag">${w}</span>`).join('');
     }
+
+    function endTest() {
+        clearInterval(timer);
+        recognition.stop();
+        document.getElementById('timer').style.color = "var(--accent)";
+        document.getElementById('neuro-info').style.color = "var(--success)";
+        updateNeuroInfo("Evaluación finalizada. Análisis neural completo.");
+        
+        document.getElementById('results').style.display = 'block';
+        document.getElementById('total-count').textContent = words.size;
+    }
+
+    function updateNeuroInfo(text) { document.getElementById('neuro-info').textContent = text; }
 
     function sendEmail() {
         const type = document.getElementById('test-type').value;
-        const body = `Prueba: ${type}\nTotal: ${words.size}\nLista: ${Array.from(words).join(', ')}`;
-        window.location.href = `mailto:${myEmail}?subject=Resultado Neuro&body=${encodeURIComponent(body)}`;
+        const body = `Resultados de Evaluación NeuroFluidez Pro:\n\nPrueba: ${type}\nTotal de palabras únicas: ${words.size}\nLista: ${Array.from(words).join(', ')}`;
+        window.location.href = `mailto:${myEmail}?subject=Resultados Fluidez Verbal - ${type}&body=${encodeURIComponent(body)}`;
+    }
+
+    function downloadExcel() {
+        const type = document.getElementById('test-type').value;
+        let csv = "data:text/csv;charset=utf-8,Fecha,Prueba,Total,Palabras\n";
+        csv += `"${new Date().toLocaleString()}","${type}","${words.size}","${Array.from(words).join(' - ')}"`;
+        const link = document.createElement("a"); link.setAttribute("href", encodeURI(csv)); link.setAttribute("download", "resultado_neurofluidez.csv");
+        document.body.appendChild(link); link.click();
     }
 </script>
+
 </body>
 </html>
